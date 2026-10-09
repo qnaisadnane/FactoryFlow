@@ -1,0 +1,4 @@
+.env
+.git
+coverage
+node_modules
