@@ -1,0 +1,5 @@
+node_modules/
+.env
+*.log
+jira-setup.js
+jira-setup.cjs
