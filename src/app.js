@@ -1,11 +1,13 @@
 import express from 'express';
 import errormiddleware from './middlewares/errorMiddleware.js';
 import installationRoutes from './routes/installationRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 
 app.use(express.json());
 
+app.use('/api/auth', authRoutes);
 app.use('/api/installation', installationRoutes);
 
 app.get('/api/health', (req, res) => {
