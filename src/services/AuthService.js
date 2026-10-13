@@ -49,4 +49,18 @@ const login = async (email, password) => {
   };
 };
 
-export const AuthService = { register, login };
+const getProfile = async (userId) => {
+  const user = await UserRepository.findById(userId);
+
+  if(!user){
+    const error = new Error('Utilisateur non trouve');
+    error.statusCode = 404;
+    throw error; 
+  }
+  return user;
+
+}
+
+export const AuthService = { register, login, getProfile };
+
+

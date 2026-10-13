@@ -20,4 +20,19 @@ const login = async (req, res, next) => {
   }
 };
 
-export const AuthController = { register, login };
+const getMe = async(req , res , next)=>{
+
+  try{ 
+  const user = await AuthService.getProfile(req.user.id);
+
+  res.status(200).json({
+    success : true,
+    data : user
+  });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const AuthController = { register, login, getMe };
+
