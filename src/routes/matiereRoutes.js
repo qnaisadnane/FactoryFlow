@@ -14,5 +14,7 @@ router.post('/', MatierePremiereController.create);
 router.get('/', MatierePremiereController.getAll);
 router.get('/:id', MatierePremiereController.getById);
 router.put('/:id', MatierePremiereController.update);
+router.post('/:id/entrees', MatierePremiereController.ajouterEntree);
 
 export default router;
+

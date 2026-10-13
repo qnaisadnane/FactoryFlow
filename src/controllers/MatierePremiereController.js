@@ -42,9 +42,25 @@ const update = async (req, res, next) => {
   }
 };
 
+const ajouterEntree = async (req, res, next) => {
+  try {
+    const { quantite } = req.body;
+    const resultat = await MatierePremiereService.enregistrerEntree(
+      req.params.id,
+      quantite,
+      req.user.id
+    );
+    res.status(201).json({ success: true, data: resultat });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const MatierePremiereController = {
   create,
   getAll,
   getById,
   update,
+  ajouterEntree,
 };
+

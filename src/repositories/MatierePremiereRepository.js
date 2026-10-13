@@ -23,10 +23,22 @@ const update = async (id, data) => {
   });
 };
 
+const incrementStock = async (id, quantite, session) => {
+  const options = { new: true };
+  if (session) options.session = session;
+  return await MatierePremiere.findByIdAndUpdate(
+    id,
+    { $inc: { quantiteDisponible: quantite } },
+    options
+  );
+};
+
 export const MatierePremiereRepository = {
   findByReference,
   findById,
   findAll,
   create,
   update,
+  incrementStock,
 };
+
