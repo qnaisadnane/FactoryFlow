@@ -9,9 +9,13 @@ const router = Router();
 router.use(authMiddleware);
 router.use(requireRole('admin'));
 
+// Liste des matières sous le seuil d'alerte (avant /:id)
+router.get('/alertes', MatierePremiereController.getAlertes);
+
 // CRUD des matières premières
 router.post('/', MatierePremiereController.create);
 router.get('/', MatierePremiereController.getAll);
+
 router.get('/:id', MatierePremiereController.getById);
 router.put('/:id', MatierePremiereController.update);
 router.post('/:id/entrees', MatierePremiereController.ajouterEntree);

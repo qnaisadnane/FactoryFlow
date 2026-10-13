@@ -33,6 +33,12 @@ const incrementStock = async (id, quantite, session) => {
   );
 };
 
+const findAlertes = async () => {
+  return await MatierePremiere.find({
+    $expr: { $lt: ['$quantiteDisponible', '$seuilAlerte'] },
+  });
+};
+
 export const MatierePremiereRepository = {
   findByReference,
   findById,
@@ -40,5 +46,7 @@ export const MatierePremiereRepository = {
   create,
   update,
   incrementStock,
+  findAlertes,
 };
+
 

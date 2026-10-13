@@ -70,6 +70,15 @@ const getMouvements = async (req, res, next) => {
   }
 };
 
+const getAlertes = async (req, res, next) => {
+  try {
+    const alertes = await MatierePremiereService.obtenirAlertes();
+    res.status(200).json({ success: true, data: alertes });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const MatierePremiereController = {
   create,
   getAll,
@@ -77,6 +86,8 @@ export const MatierePremiereController = {
   update,
   ajouterEntree,
   getMouvements,
+  getAlertes,
 };
+
 
 

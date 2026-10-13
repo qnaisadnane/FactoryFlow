@@ -115,6 +115,18 @@ const obtenirMouvements = async (matiereId, page = 1, limit = 10) => {
   };
 };
 
+const obtenirAlertes = async () => {
+  const alertes = await MatierePremiereRepository.findAlertes();
+
+  return alertes.map((item) => {
+    const obj = item.toObject ? item.toObject() : item;
+    return {
+      ...obj,
+      quantiteManquante: Math.max(0, obj.seuilAlerte - obj.quantiteDisponible),
+    };
+  });
+};
+
 export const MatierePremiereService = {
   creerMatiere,
   listerToutes,
@@ -122,6 +134,8 @@ export const MatierePremiereService = {
   modifierMatiere,
   enregistrerEntree,
   obtenirMouvements,
+  obtenirAlertes,
 };
+
 
 
