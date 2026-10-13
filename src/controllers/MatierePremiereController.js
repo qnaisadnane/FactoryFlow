@@ -56,11 +56,27 @@ const ajouterEntree = async (req, res, next) => {
   }
 };
 
+const getMouvements = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query;
+    const resultat = await MatierePremiereService.obtenirMouvements(
+      req.params.id,
+      page,
+      limit
+    );
+    res.status(200).json({ success: true, ...resultat });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const MatierePremiereController = {
   create,
   getAll,
   getById,
   update,
   ajouterEntree,
+  getMouvements,
 };
+
 

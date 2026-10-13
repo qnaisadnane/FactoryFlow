@@ -15,6 +15,8 @@ router.get('/', MatierePremiereController.getAll);
 router.get('/:id', MatierePremiereController.getById);
 router.put('/:id', MatierePremiereController.update);
 router.post('/:id/entrees', MatierePremiereController.ajouterEntree);
+router.get('/:id/mouvements', MatierePremiereController.getMouvements);
 
 export default router;
+
 

@@ -92,11 +92,36 @@ const enregistrerEntree = async (matiereId, quantite, userId) => {
   };
 };
 
+const obtenirMouvements = async (matiereId, page = 1, limit = 10) => {
+  const matiere = await MatierePremiereRepository.findById(matiereId);
+  if (!matiere) {
+    const error = new Error('Matière première introuvable');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.max(1, parseInt(limit, 10) || 10);
+
+  const mouvements = await MouvementStockRepository.findByMatiere(matiereId, pageNum, limitNum);
+  const total = await MouvementStockRepository.countByMatiere(matiereId);
+
+  return {
+    total,
+    page: pageNum,
+    limit: limitNum,
+    totalPages: Math.ceil(total / limitNum),
+    data: mouvements,
+  };
+};
+
 export const MatierePremiereService = {
   creerMatiere,
   listerToutes,
   obtenirParId,
   modifierMatiere,
   enregistrerEntree,
+  obtenirMouvements,
 };
+
 
