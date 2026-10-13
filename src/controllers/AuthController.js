@@ -34,5 +34,19 @@ const getMe = async(req , res , next)=>{
   }
 };
 
-export const AuthController = { register, login, getMe };
+const createUser = async (req, res, next) => {
+  try {
+    const { nom, email, password, role } = req.body;
+    const user = await AuthService.createUser(nom, email, password, role);
+    res.status(201).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const AuthController = { register, login, getMe, createUser };
+
 

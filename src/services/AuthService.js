@@ -61,6 +61,38 @@ const getProfile = async (userId) => {
 
 }
 
-export const AuthService = { register, login, getProfile };
+const createUser = async (nom, email, password, role = 'operateur') => {
+  const rolesValides = ['admin', 'operateur'];
+  if (role && !rolesValides.includes(role)) {
+    const error = new Error('Rôle invalide. Les rôles autorisés sont : admin, operateur');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const existe = await UserRepository.findByEmail(email);
+  if (existe) {
+    const error = new Error('Email déjà utilisé');
+    error.statusCode = 409;
+    throw error;
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = await UserRepository.create({
+    nom,
+    email,
+    password: hashedPassword,
+    role: role || 'operateur',
+  });
+
+  return {
+    id: user._id,
+    nom: user.nom,
+    email: user.email,
+    role: user.role,
+  };
+};
+
+export const AuthService = { register, login, getProfile, createUser };
+
 
 
