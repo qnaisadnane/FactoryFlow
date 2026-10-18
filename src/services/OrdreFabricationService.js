@@ -1,4 +1,6 @@
+import mongoose from 'mongoose';
 import { OrdreFabricationRepository } from '../repositories/OrdreFabricationRepository.js';
+
 import { ProduitRepository } from '../repositories/ProduitRepository.js';
 import { UserRepository } from '../repositories/UserRepository.js';
 import { MatierePremiereRepository } from '../repositories/MatierePremiereRepository.js';
@@ -206,25 +208,59 @@ const demarrerOrdre = async (id, userId) => {
     throw error;
   }
 
-  // Déduire les stocks et créer les mouvements de sortie
-  for (const item of ordre.composition) {
-    const matiereId = item.matiere?._id || item.matiere;
-    await MatierePremiereRepository.deductStock(matiereId, item.quantiteTotale);
-    await MouvementStockRepository.create({
-      matiere: matiereId,
-      type: 'sortie',
-      quantite: item.quantiteTotale,
-      ordreRef: ordre._id,
-      creePar: userId,
-      date: new Date(),
-    });
+  // Démarrage atomique avec session MongoDB (rollback si échec)
+  let session = null;
+  try {
+    session = await mongoose.startSession();
+    session.startTransaction();
+  } catch (err) {
+    session = null;
   }
 
-  return await OrdreFabricationRepository.update(id, {
-    statut: 'en_cours',
-    dateDemarrage: new Date(),
-  });
+  try {
+    // Déduire les stocks et enregistrer les mouvements de sortie
+    for (const item of ordre.composition) {
+      const matiereId = item.matiere?._id || item.matiere;
+      await MatierePremiereRepository.deductStock(matiereId, item.quantiteTotale, session);
+      await MouvementStockRepository.create(
+        {
+          matiere: matiereId,
+          type: 'sortie',
+          quantite: item.quantiteTotale,
+          ordreRef: ordre._id,
+          creePar: userId,
+          date: new Date(),
+        },
+        session
+      );
+    }
+
+    const ordreDemarre = await OrdreFabricationRepository.update(
+      id,
+      {
+        statut: 'en_cours',
+        dateDemarrage: new Date(),
+      },
+      session
+    );
+
+    if (session) {
+      await session.commitTransaction();
+    }
+
+    return ordreDemarre;
+  } catch (error) {
+    if (session) {
+      await session.abortTransaction();
+    }
+    throw error;
+  } finally {
+    if (session) {
+      session.endSession();
+    }
+  }
 };
+
 
 // Terminer un ordre de fabrication (Opérateur assigné uniquement)
 const terminerOrdre = async (id, userId) => {
