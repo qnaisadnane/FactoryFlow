@@ -28,9 +28,20 @@ const getById = async (req, res, next) => {
   }
 };
 
+const update = async (req, res, next) => {
+  try {
+    const produit = await ProduitService.modifierProduit(req.params.id, req.body);
+    res.status(200).json({ success: true, data: produit });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const ProduitController = {
   create,
   getAll,
   getById,
+  update,
 };
+
 

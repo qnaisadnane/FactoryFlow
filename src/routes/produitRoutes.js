@@ -11,6 +11,8 @@ router.use(requireRole('admin'));
 router.post('/', ProduitController.create);
 router.get('/', ProduitController.getAll);
 router.get('/:id', ProduitController.getById);
+router.put('/:id', ProduitController.update);
 
 export default router;
+
 
