@@ -52,6 +52,36 @@ const creerOrdre = async ({ produitId, quantite, operateurId, adminId }) => {
   });
 };
 
+// Lister tous les ordres avec filtres et pagination (Admin)
+const listerOrdres = async ({ statut, produit, dateDebut, dateFin, page = 1, limit = 10 }) => {
+  const filter = {};
+
+  if (statut) {
+    filter.statut = statut;
+  }
+
+  if (produit) {
+    filter.produit = produit;
+  }
+
+  if (dateDebut || dateFin) {
+    filter.dateCreation = {};
+    if (dateDebut) {
+      filter.dateCreation.$gte = new Date(dateDebut);
+    }
+    if (dateFin) {
+      filter.dateCreation.$lte = new Date(dateFin);
+    }
+  }
+
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.max(1, parseInt(limit, 10) || 10);
+
+  return await OrdreFabricationRepository.findAll(filter, pageNum, limitNum);
+};
+
 export const OrdreFabricationService = {
   creerOrdre,
+  listerOrdres,
 };
+

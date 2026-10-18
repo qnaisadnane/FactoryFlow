@@ -15,6 +15,25 @@ const create = async (req, res, next) => {
   }
 };
 
+const getAll = async (req, res, next) => {
+  try {
+    const { statut, produit, dateDebut, dateFin, page, limit } = req.query;
+    const resultat = await OrdreFabricationService.listerOrdres({
+      statut,
+      produit,
+      dateDebut,
+      dateFin,
+      page,
+      limit,
+    });
+    res.status(200).json({ success: true, ...resultat });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const OrdreFabricationController = {
   create,
+  getAll,
 };
+

@@ -7,7 +7,9 @@ const router = Router();
 
 router.use(authMiddleware);
 
-// POST /api/ordres (Admin uniquement)
+// POST & GET /api/ordres (Admin uniquement)
 router.post('/', requireRole('admin'), OrdreFabricationController.create);
+router.get('/', requireRole('admin'), OrdreFabricationController.getAll);
 
 export default router;
+
