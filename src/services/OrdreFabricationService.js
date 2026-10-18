@@ -1,6 +1,9 @@
 import { OrdreFabricationRepository } from '../repositories/OrdreFabricationRepository.js';
 import { ProduitRepository } from '../repositories/ProduitRepository.js';
 import { UserRepository } from '../repositories/UserRepository.js';
+import { MatierePremiereRepository } from '../repositories/MatierePremiereRepository.js';
+import { MouvementStockRepository } from '../repositories/MouvementStockRepository.js';
+
 
 // Créer un ordre de fabrication (Admin)
 const creerOrdre = async ({ produitId, quantite, operateurId, adminId }) => {
@@ -157,13 +160,81 @@ const annulerOrdre = async (id) => {
   return await OrdreFabricationRepository.update(id, { statut: 'annulé' });
 };
 
+// Démarrer un ordre de fabrication (Opérateur assigné uniquement)
+const demarrerOrdre = async (id, userId) => {
+  const ordre = await OrdreFabricationRepository.findById(id);
+  if (!ordre) {
+    const error = new Error('Ordre de fabrication introuvable');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const opId = ordre.operateurAssigné?._id ? ordre.operateurAssigné._id.toString() : ordre.operateurAssigné?.toString();
+  if (opId !== userId.toString()) {
+    const error = new Error('Seul l\'opérateur assigné peut démarrer cet ordre de fabrication');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  if (ordre.statut !== 'planifié') {
+    const error = new Error(`Impossible de démarrer un ordre avec le statut "${ordre.statut}"`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Vérifier la disponibilité du stock pour chaque matière
+  const manques = [];
+  for (const item of ordre.composition) {
+    const matiereId = item.matiere?._id || item.matiere;
+    const matiere = await MatierePremiereRepository.findById(matiereId);
+    const dispo = matiere ? matiere.quantiteDisponible : 0;
+    if (!matiere || dispo < item.quantiteTotale) {
+      manques.push({
+        matiereId,
+        nomMatiere: item.nomMatiere || matiere?.nom || 'Inconnue',
+        requis: item.quantiteTotale,
+        disponible: dispo,
+        manquant: item.quantiteTotale - dispo,
+      });
+    }
+  }
+
+  if (manques.length > 0) {
+    const error = new Error('Stock insuffisant pour démarrer l\'ordre de fabrication');
+    error.statusCode = 400;
+    error.details = manques;
+    throw error;
+  }
+
+  // Déduire les stocks et créer les mouvements de sortie
+  for (const item of ordre.composition) {
+    const matiereId = item.matiere?._id || item.matiere;
+    await MatierePremiereRepository.deductStock(matiereId, item.quantiteTotale);
+    await MouvementStockRepository.create({
+      matiere: matiereId,
+      type: 'sortie',
+      quantite: item.quantiteTotale,
+      ordreRef: ordre._id,
+      creePar: userId,
+      date: new Date(),
+    });
+  }
+
+  return await OrdreFabricationRepository.update(id, {
+    statut: 'en_cours',
+    dateDemarrage: new Date(),
+  });
+};
+
 export const OrdreFabricationService = {
   creerOrdre,
   listerOrdres,
   obtenirParId,
   modifierOrdre,
   annulerOrdre,
+  demarrerOrdre,
 };
+
 
 
 

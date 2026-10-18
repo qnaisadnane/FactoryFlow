@@ -63,13 +63,24 @@ const cancel = async (req, res, next) => {
   }
 };
 
+const demarrer = async (req, res, next) => {
+  try {
+    const ordre = await OrdreFabricationService.demarrerOrdre(req.params.id, req.user.id);
+    res.status(200).json({ success: true, message: 'Ordre démarré avec succès', data: ordre });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const OrdreFabricationController = {
   create,
   getAll,
   getById,
   update,
   cancel,
+  demarrer,
 };
+
 
 
 

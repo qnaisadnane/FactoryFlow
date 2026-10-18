@@ -39,6 +39,16 @@ const findAlertes = async () => {
   });
 };
 
+const deductStock = async (id, quantite, session) => {
+  const options = { new: true };
+  if (session) options.session = session;
+  return await MatierePremiere.findByIdAndUpdate(
+    id,
+    { $inc: { quantiteDisponible: -quantite } },
+    options
+  );
+};
+
 export const MatierePremiereRepository = {
   findByReference,
   findById,
@@ -46,7 +56,9 @@ export const MatierePremiereRepository = {
   create,
   update,
   incrementStock,
+  deductStock,
   findAlertes,
 };
+
 
 
