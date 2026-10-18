@@ -9,5 +9,8 @@ router.use(authMiddleware);
 router.use(requireRole('admin'));
 
 router.post('/', ProduitController.create);
+router.get('/', ProduitController.getAll);
+router.get('/:id', ProduitController.getById);
 
 export default router;
+
