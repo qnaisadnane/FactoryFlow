@@ -12,7 +12,9 @@ router.post('/', requireRole('admin'), OrdreFabricationController.create);
 router.get('/', requireRole('admin'), OrdreFabricationController.getAll);
 router.get('/:id', requireRole('admin'), OrdreFabricationController.getById);
 router.put('/:id', requireRole('admin'), OrdreFabricationController.update);
+router.delete('/:id', requireRole('admin'), OrdreFabricationController.cancel);
 
 export default router;
+
 
 

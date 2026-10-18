@@ -139,11 +139,31 @@ const modifierOrdre = async (id, { quantite, operateurId }) => {
   return await OrdreFabricationRepository.update(id, updateData);
 };
 
+// Annuler un ordre planifié (Admin)
+const annulerOrdre = async (id) => {
+  const ordre = await OrdreFabricationRepository.findById(id);
+  if (!ordre) {
+    const error = new Error('Ordre de fabrication introuvable');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (ordre.statut !== 'planifié') {
+    const error = new Error('Seuls les ordres avec le statut planifié peuvent être annulés');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return await OrdreFabricationRepository.update(id, { statut: 'annulé' });
+};
+
 export const OrdreFabricationService = {
   creerOrdre,
   listerOrdres,
   obtenirParId,
   modifierOrdre,
+  annulerOrdre,
 };
+
 
 
