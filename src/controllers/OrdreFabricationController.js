@@ -81,6 +81,20 @@ const terminer = async (req, res, next) => {
   }
 };
 
+const getMesOrdres = async (req, res, next) => {
+  try {
+    const { statut, page, limit } = req.query;
+    const resultat = await OrdreFabricationService.listerMesOrdres(req.user.id, {
+      statut,
+      page,
+      limit,
+    });
+    res.status(200).json({ success: true, ...resultat });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const OrdreFabricationController = {
   create,
   getAll,
@@ -89,7 +103,9 @@ export const OrdreFabricationController = {
   cancel,
   demarrer,
   terminer,
+  getMesOrdres,
 };
+
 
 
 

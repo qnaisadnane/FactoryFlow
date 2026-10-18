@@ -254,6 +254,20 @@ const terminerOrdre = async (id, userId) => {
   });
 };
 
+// Consulter ses propres ordres (Opérateur connecté)
+const listerMesOrdres = async (userId, { statut, page = 1, limit = 10 }) => {
+  const filter = { operateurAssigné: userId };
+
+  if (statut) {
+    filter.statut = statut;
+  }
+
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.max(1, parseInt(limit, 10) || 10);
+
+  return await OrdreFabricationRepository.findAll(filter, pageNum, limitNum);
+};
+
 export const OrdreFabricationService = {
   creerOrdre,
   listerOrdres,
@@ -262,7 +276,9 @@ export const OrdreFabricationService = {
   annulerOrdre,
   demarrerOrdre,
   terminerOrdre,
+  listerMesOrdres,
 };
+
 
 
 

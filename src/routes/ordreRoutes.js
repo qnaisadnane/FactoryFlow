@@ -7,9 +7,13 @@ const router = Router();
 
 router.use(authMiddleware);
 
+// Consultation de ses propres ordres (Opérateur connecté)
+router.get('/mes-ordres', requireRole('operateur', 'admin'), OrdreFabricationController.getMesOrdres);
+
 // POST & GET /api/ordres (Admin uniquement)
 router.post('/', requireRole('admin'), OrdreFabricationController.create);
 router.get('/', requireRole('admin'), OrdreFabricationController.getAll);
+
 router.get('/:id', requireRole('admin'), OrdreFabricationController.getById);
 router.put('/:id', requireRole('admin'), OrdreFabricationController.update);
 router.delete('/:id', requireRole('admin'), OrdreFabricationController.cancel);
