@@ -14,10 +14,12 @@ router.get('/:id', requireRole('admin'), OrdreFabricationController.getById);
 router.put('/:id', requireRole('admin'), OrdreFabricationController.update);
 router.delete('/:id', requireRole('admin'), OrdreFabricationController.cancel);
 
-// Démarrage par l'opérateur assigné
+// Démarrage et terminaison par l'opérateur assigné
 router.post('/:id/demarrer', requireRole('operateur', 'admin'), OrdreFabricationController.demarrer);
+router.post('/:id/terminer', requireRole('operateur', 'admin'), OrdreFabricationController.terminer);
 
 export default router;
+
 
 
 

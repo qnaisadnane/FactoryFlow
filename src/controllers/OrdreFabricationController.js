@@ -72,6 +72,15 @@ const demarrer = async (req, res, next) => {
   }
 };
 
+const terminer = async (req, res, next) => {
+  try {
+    const ordre = await OrdreFabricationService.terminerOrdre(req.params.id, req.user.id);
+    res.status(200).json({ success: true, message: 'Ordre terminé avec succès', data: ordre });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const OrdreFabricationController = {
   create,
   getAll,
@@ -79,7 +88,9 @@ export const OrdreFabricationController = {
   update,
   cancel,
   demarrer,
+  terminer,
 };
+
 
 
 

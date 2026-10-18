@@ -226,6 +226,34 @@ const demarrerOrdre = async (id, userId) => {
   });
 };
 
+// Terminer un ordre de fabrication (Opérateur assigné uniquement)
+const terminerOrdre = async (id, userId) => {
+  const ordre = await OrdreFabricationRepository.findById(id);
+  if (!ordre) {
+    const error = new Error('Ordre de fabrication introuvable');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const opId = ordre.operateurAssigné?._id ? ordre.operateurAssigné._id.toString() : ordre.operateurAssigné?.toString();
+  if (opId !== userId.toString()) {
+    const error = new Error('Seul l\'opérateur assigné peut terminer cet ordre de fabrication');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  if (ordre.statut !== 'en_cours') {
+    const error = new Error(`Seul un ordre avec le statut "en_cours" peut être terminé (statut actuel: "${ordre.statut}")`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return await OrdreFabricationRepository.update(id, {
+    statut: 'terminé',
+    dateFin: new Date(),
+  });
+};
+
 export const OrdreFabricationService = {
   creerOrdre,
   listerOrdres,
@@ -233,7 +261,9 @@ export const OrdreFabricationService = {
   modifierOrdre,
   annulerOrdre,
   demarrerOrdre,
+  terminerOrdre,
 };
+
 
 
 
