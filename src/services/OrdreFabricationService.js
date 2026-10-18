@@ -80,8 +80,70 @@ const listerOrdres = async ({ statut, produit, dateDebut, dateFin, page = 1, lim
   return await OrdreFabricationRepository.findAll(filter, pageNum, limitNum);
 };
 
+// Obtenir le détail complet d'un ordre
+const obtenirParId = async (id) => {
+  const ordre = await OrdreFabricationRepository.findById(id);
+  if (!ordre) {
+    const error = new Error('Ordre de fabrication introuvable');
+    error.statusCode = 404;
+    throw error;
+  }
+  return ordre;
+};
+
+// Modifier un ordre (uniquement si statut === 'planifié')
+const modifierOrdre = async (id, { quantite, operateurId }) => {
+  const ordre = await OrdreFabricationRepository.findById(id);
+  if (!ordre) {
+    const error = new Error('Ordre de fabrication introuvable');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (ordre.statut !== 'planifié') {
+    const error = new Error('Seuls les ordres planifiés peuvent être modifiés');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const updateData = {};
+
+  if (operateurId) {
+    const operateur = await UserRepository.findById(operateurId);
+    if (!operateur) {
+      const error = new Error('Opérateur introuvable');
+      error.statusCode = 404;
+      throw error;
+    }
+    updateData.operateurAssigné = operateur._id;
+  }
+
+  if (quantite) {
+    const quantiteNum = Number(quantite);
+    if (!quantiteNum || quantiteNum <= 0) {
+      const error = new Error('La quantité doit être supérieure à 0');
+      error.statusCode = 400;
+      throw error;
+    }
+    updateData.quantite = quantiteNum;
+
+    // Recalculer les quantités totales de la composition
+    updateData.composition = ordre.composition.map((item) => ({
+      matiere: item.matiere._id || item.matiere,
+      nomMatiere: item.nomMatiere,
+      quantiteUnitaire: item.quantiteUnitaire,
+      quantiteTotale: item.quantiteUnitaire * quantiteNum,
+    }));
+  }
+
+  return await OrdreFabricationRepository.update(id, updateData);
+};
+
 export const OrdreFabricationService = {
   creerOrdre,
   listerOrdres,
+  obtenirParId,
+  modifierOrdre,
 };
+
 

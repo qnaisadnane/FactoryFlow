@@ -10,6 +10,9 @@ router.use(authMiddleware);
 // POST & GET /api/ordres (Admin uniquement)
 router.post('/', requireRole('admin'), OrdreFabricationController.create);
 router.get('/', requireRole('admin'), OrdreFabricationController.getAll);
+router.get('/:id', requireRole('admin'), OrdreFabricationController.getById);
+router.put('/:id', requireRole('admin'), OrdreFabricationController.update);
 
 export default router;
+
 

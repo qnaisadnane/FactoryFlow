@@ -32,8 +32,33 @@ const getAll = async (req, res, next) => {
   }
 };
 
+const getById = async (req, res, next) => {
+  try {
+    const ordre = await OrdreFabricationService.obtenirParId(req.params.id);
+    res.status(200).json({ success: true, data: ordre });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const update = async (req, res, next) => {
+  try {
+    const { quantite, operateurId } = req.body;
+    const ordre = await OrdreFabricationService.modifierOrdre(req.params.id, {
+      quantite,
+      operateurId,
+    });
+    res.status(200).json({ success: true, data: ordre });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const OrdreFabricationController = {
   create,
   getAll,
+  getById,
+  update,
 };
+
 
