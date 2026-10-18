@@ -7,9 +7,15 @@ import matiereRoutes from './routes/matiereRoutes.js';
 import produitRoutes from './routes/produitRoutes.js';
 import ordreRoutes from './routes/ordreRoutes.js';
 
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
+
 const app = express();
 
 app.use(express.json());
+
+// Documentation Swagger OpenAPI
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
